@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>Pie Chart Demo</title>
+    <script type="text/javascript" src="js/moo.js"></script>
+    <script type="text/javascript" src="js/raphael-min.js"></script>
+    <script type="text/javascript" src="js/g.raphael-min.js"></script>
+    <script type="text/javascript" src="js/g.pie-min.js"></script>
+    <script type="text/javascript">
+
+        // Adds up an array
+        //
+        function totalArray(arr) {
+            var total = 0;
+            arr.each(function(el){ total += el; });
+            return total;
+        }
+
+        // Figures out the angles
+        //
+        function sector(cx, cy, r, startAngle, endAngle, fill) {
+            var rad = Math.PI / 180,
+                x1 = cx + r * Math.cos(-startAngle * rad),
+                x2 = cx + r * Math.cos(-endAngle * rad),
+                xm = cx + r / 2 * Math.cos(-(startAngle + (endAngle - startAngle) / 2) * rad),
+                y1 = cy + r * Math.sin(-startAngle * rad),
+                y2 = cy + r * Math.sin(-endAngle * rad),
+                ym = cy + r / 2 * Math.sin(-(startAngle + (endAngle - startAngle) / 2) * rad),
+                res = [
+                    "M", cx, cy,
+                    "L", x1, y1,
+                    "A", r, r, 0, +(Math.abs(endAngle - startAngle) > 180), 1, x2, y2,
+                    "z"
+                ];
+
+            res.middle = { x: xm, y: ym };
+            return res;
+        }
+
+        // Update the graph with new random data
+        //
+        function updateGraph() {
+            var data = [500 * Math.random(), 400 * Math.random(),
+                        300 * Math.random(), 432 * Math.random(),
+                        780 * Math.random(), 100 * Math.random(),
+                        201 * Math.random()]
+                ,   total  = totalArray(data)
+                ,   count  = 0
+                ,   sAngle = 0;
+
+            Object.each(chart.series, function(el){
+                if (el.type == 'path' && el.value) {
+                    var mangle = sAngle - 360 * data[count] / total / 2;
+
+                    if (count == 0) sAngle = 90 - mangle;
+                    var eAngle = sAngle - 360 * data[count] / total;
+
+                    el.animate({
+                        'path': sector(320, 240, 100, sAngle, eAngle)
+                    }, 1000, 'backOut');
+
+                    sAngle = eAngle;
+                    count += 1;
+                }
+            });
+        }
+
+        // Wire up the events and draw the inital graph
+        //
+        window.addEvent('domready', function(){
+            $('render').addEvent('click', function(){ updateGraph() });
+
+            var paper = Raphael('canvas', 640, 480)
+            ,   chartData = [55, 20, 13, 32, 5, 1, 2];
+
+            paper.rect(0, 0, 640, 480).attr('fill', '#333');
+            chart=paper.piechart(320, 240, 100, chartData);
+        });
+    </script>
+</head>
+<body>
+    <div id="canvas"></div>
+    <input type="button" id="render" value="click me">
+</body>
+</html>
