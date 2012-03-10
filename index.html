@@ -1,5 +1,5 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<!DOCTYPE html>
+<html>
 <head>
     <title>Pie Chart Demo</title>
     <script type="text/javascript" src="js/moo.js"></script>
@@ -7,14 +7,13 @@
     <script type="text/javascript" src="js/g.raphael-min.js"></script>
     <script type="text/javascript" src="js/g.pie-min.js"></script>
     <script type="text/javascript">
-
-        // Adds up an array
-        //
-        function totalArray(arr) {
-            var total = 0;
-            arr.each(function(el){ total += el; });
-            return total;
-        }
+		Array.implement({
+	        total: function(){
+	            var total = 0;
+	            this.each(function(el){ total += el; });
+	            return total;
+	        }
+	     });
 
         // Figures out the angles
         //
@@ -44,7 +43,7 @@
                         300 * Math.random(), 432 * Math.random(),
                         780 * Math.random(), 100 * Math.random(),
                         201 * Math.random()]
-                ,   total  = totalArray(data)
+                ,   total  = data.total()
                 ,   count  = 0
                 ,   sAngle = 0;
 
@@ -70,11 +69,9 @@
         window.addEvent('domready', function(){
             $('render').addEvent('click', function(){ updateGraph() });
 
-            var paper = Raphael('canvas', 640, 480)
-            ,   chartData = [55, 20, 13, 32, 5, 1, 2];
-
+            var paper = Raphael('canvas', 640, 480);
             paper.rect(0, 0, 640, 480).attr('fill', '#333');
-            chart=paper.piechart(320, 240, 100, chartData);
+            chart = paper.piechart(320, 240, 100, [55, 20, 13, 32, 5, 1, 2]);
         });
     </script>
 </head>
